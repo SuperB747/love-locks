@@ -130,6 +130,11 @@ def set_lang(lang):
         session['lang'] = lang
     return redirect(url_for('index'))
 
+# 자물쇠 애니메이션
+@app.route('/demo')
+def demo_animation():
+    return render_template('animate_lock.html')
+
 # ✅ 다국어 JSON (JS용)
 @app.route('/locales/<lang>.json')
 def get_locale(lang):

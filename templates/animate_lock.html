@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Love Lock Animation</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('/static/img/sunset_fence.jpg') no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    .lock-container {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: all 2s ease;
+    }
+
+    .lock {
+      width: 80px;
+      height: 80px;
+      transition: transform 1s ease, top 1s ease;
+    }
+
+    .lock.animate {
+      animation: floatAndLock 3s forwards ease-in-out;
+    }
+
+    @keyframes floatAndLock {
+      0% {
+        transform: scale(1) translateY(0);
+      }
+      30% {
+        transform: scale(1.5) translateY(-150px);
+      }
+      100% {
+        transform: scale(1) translateY(-250px);
+      }
+    }
+
+    .button-wrapper {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      background-color: #f48c8c;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #d86767;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lock-container">
+    <img id="lockImage" src="/static/img/lock_yellow.svg" alt="Lock" class="lock">
+  </div>
+
+  <div class="button-wrapper">
+    <button onclick="dropLock()">🔐 자물쇠 걸기</button>
+  </div>
+
+  <script>
+    function dropLock() {
+      const lock = document.getElementById('lockImage');
+      lock.classList.remove('animate'); // reset
+      void lock.offsetWidth; // reflow to restart animation
+      lock.classList.add('animate');
+    }
+  </script>
+
+</body>
+</html>
