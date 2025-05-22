@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <title>Love Locks</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    @keyframes drop-lock {
+      0% {
+        transform: translateY(-200px) rotate(-15deg);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0) rotate(0);
+        opacity: 1;
+      }
+    }
+
+    .lock-svg-preview {
+      margin-top: 30px;
+      padding: 10px;
+      border-radius: 20px;
+      background-color: rgba(255,255,255,0.7);
+      display: inline-block;
+    }
+
+    .lock-svg-preview object {
+      animation: drop-lock 0.8s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="lang-switch">
+    <a href="{{ url_for('set_lang', lang='en') }}">🇺🇸 English</a> |
+    <a href="{{ url_for('set_lang', lang='ko') }}">🇰🇷 한국어</a>
+  </div>
+
+  <div class="container">
+    <h1 id="title">❤️</h1>
+
+    <form action="{{ url_for('create_lock') }}" method="post">
+      <input type="text" name="name1" id="name1" placeholder="Name 1" required />
+      <input type="text" name="name2" id="name2" placeholder="Name 2" required />
+      <br />
+      <textarea name="message" id="message" placeholder="Optional message" rows="3"></textarea>
+      <br />
+      <button type="submit" id="lock-btn">🔐 Lock it!</button>
+    </form>
+
+    <!-- 🔐 자물쇠 SVG 미리보기 -->
+    <div class="lock-svg-preview">
+      <object type="image/svg+xml" id="svgLock" width="160" height="200"></object>
+    </div>
+  </div>
+
+  <script>
+    // 다국어 텍스트 적용
+    fetch(`/locales/{{ lang }}.json`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('title').innerText = data['title'];
+        document.getElementById('name1').placeholder = data['name1'];
+        document.getElementById('name2').placeholder = data['name2'];
+        document.getElementById('message').placeholder = data['message'];
+        document.getElementById('lock-btn').innerText = data['submit'];
+      });
+
+    // 랜덤 자물쇠 색상 선택
+    const colors = ['red', 'yellow', 'blue'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const svgLock = document.getElementById('svgLock');
+    svgLock.data = `/static/img/lock_${randomColor}.svg`;
+
+    // 이름 입력 시 자물쇠 SVG 안에 텍스트 반영
+    document.getElementById('name1').addEventListener('input', updatePreview);
+    document.getElementById('name2').addEventListener('input', updatePreview);
+
+    function updatePreview() {
+      const name1 = document.getElementById('name1').value.trim();
+      const name2 = document.getElementById('name2').value.trim();
+      const previewText = name1 && name2 ? `${name1} ❤️ ${name2}` : '❤️';
+
+      if (svgLock && svgLock.contentDocument) {
+        const textElement = svgLock.contentDocument.getElementById('lockText');
+        if (textElement) {
+          textElement.textContent = previewText;
+        }
+      }
+    }
+
+    // SVG 로드 완료 후 첫 미리보기 반영
+    svgLock.addEventListener("load", updatePreview);
+  </script>
+</body>
+</html>

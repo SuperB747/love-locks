@@ -1,0 +1,6 @@
+<!-- lock.svg -->
+<svg width="160" height="200" viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg">
+  <rect x="40" y="80" width="80" height="100" rx="15" fill="#f28b82" stroke="#d5604f" stroke-width="4"/>
+  <path d="M50,80 a30,30 0 1,1 60,0" fill="none" stroke="#c1944d" stroke-width="8"/>
+  <text id="lockText" x="80" y="140" text-anchor="middle" font-size="14" font-family="Comic Sans MS" fill="#4e2800">❤️</text>
+</svg>

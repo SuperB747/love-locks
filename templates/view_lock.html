@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <title>Love Lock - {{ name1 }} ❤️ {{ name2 }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .qr-box {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .qr-box img {
+      margin-top: 10px;
+      width: 120px;
+      height: auto;
+    }
+    .lock-preview {
+      margin-top: 30px;
+      font-size: 1.4rem;
+      background: #f5d07c;
+      padding: 20px;
+      border-radius: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+      display: inline-block;
+      font-family: 'Comic Sans MS', cursive;
+      color: #4e2800;
+    }
+  </style>
+</head>
+<body>
+  <div class="lang-switch">
+    <a href="{{ url_for('set_lang', lang='en') }}">🇺🇸 English</a> |
+    <a href="{{ url_for('set_lang', lang='ko') }}">🇰🇷 한국어</a>
+  </div>
+
+  <div class="container">
+    <h1>{{ name1 }} ❤️ {{ name2 }}</h1>
+
+    {% if message %}
+      <div class="lock-preview">
+        {{ message }}
+      </div>
+    {% endif %}
+
+    <!-- 💖 기념일 -->
+    <p style="margin-top: 10px; font-size: 1rem; font-weight: bold; color: #b6572a;">
+      💕 Together for D+{{ d_day }}
+    </p>
+
+    <!-- 📅 생성일 -->
+    <p style="font-size: 0.9rem; color: #777;">
+      📅 {{ created_at }} (UTC)
+    </p>
+
+    <!-- 🔗 공유 링크 -->
+    <p style="margin-top: 10px;">
+      🔗 <strong>Share this lock:</strong><br />
+      <a href="{{ request.url }}">{{ request.url }}</a>
+    </p>
+
+    <!-- 📱 QR 코드 -->
+    <div class="qr-box">
+      📱 <strong>Scan to revisit:</strong>
+      <br/>
+      <img src="{{ url_for('generate_qr', lock_id=lock_id) }}" alt="QR Code" />
+    </div>
+
+    <!-- 🔙 돌아가기 버튼 -->
+    <a href="{{ url_for('index') }}">
+      <button style="margin-top: 30px;">🔙 Make another</button>
+    </a>
+  </div>
+</body>
+</html>
