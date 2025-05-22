@@ -13,6 +13,9 @@ app.secret_key = 'your-secret-key'  # 실제 서비스에선 환경변수로 분
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'data', 'locks.db')
 
+# ✅ 무조건 실행되도록 여기 넣기
+init_db()
+
 LANGUAGES = ['en', 'ko']
 
 # 🔧 DB 초기화
