@@ -29,6 +29,7 @@ def init_db():
             name1 TEXT NOT NULL,
             name2 TEXT NOT NULL,
             message TEXT,
+            password TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
@@ -58,14 +59,15 @@ def create_lock():
     name1 = request.form.get('name1', '').strip()
     name2 = request.form.get('name2', '').strip()
     message = request.form.get('message', '').strip()
+    password = request.form.get('password', '').strip()
 
     if name1 and name2:
         lock_id = str(uuid.uuid4())[:8]
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO locks (id, name1, name2, message) VALUES (?, ?, ?, ?)',
-            (lock_id, name1, name2, message)
+            'INSERT INTO locks (id, name1, name2, message, password) VALUES (?, ?, ?, ?, ?)',
+            (lock_id, name1, name2, message, password)
         )
         conn.commit()
         conn.close()
@@ -77,12 +79,12 @@ def create_lock():
 def view_lock(lock_id):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('SELECT name1, name2, message, created_at FROM locks WHERE id = ?', (lock_id,))
+    cursor.execute('SELECT name1, name2, message, password, created_at FROM locks WHERE id = ?', (lock_id,))
     row = cursor.fetchone()
     conn.close()
 
     if row:
-        created_at = row[3]
+        created_at = row[4]
         d_day = (datetime.utcnow() - datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S")).days
         return render_template(
             'view_lock.html',
@@ -90,6 +92,7 @@ def view_lock(lock_id):
             name1=row[0],
             name2=row[1],
             message=row[2],
+            password=row[3],
             created_at=created_at,
             d_day=d_day,
             lang=session.get('lang', 'en')

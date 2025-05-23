@@ -1,95 +1,135 @@
 <!DOCTYPE html>
-<html lang="{{ lang }}">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Love Locks</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>Love Lock Fence</title>
   <style>
-    @keyframes drop-lock {
-      0% {
-        transform: translateY(-200px) rotate(-15deg);
-        opacity: 0;
-      }
-      100% {
-        transform: translateY(0) rotate(0);
-        opacity: 1;
-      }
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+      text-align: center;
+      margin: 0;
+      padding: 30px;
     }
 
-    .lock-svg-preview {
-      margin-top: 30px;
-      padding: 10px;
-      border-radius: 20px;
-      background-color: rgba(255,255,255,0.7);
-      display: inline-block;
+    svg {
+      border: 2px solid #ccc;
+      margin-top: 20px;
     }
 
-    .lock-svg-preview object {
-      animation: drop-lock 0.8s ease-out;
+    .controls {
+      margin-top: 20px;
+    }
+
+    input {
+      padding: 8px;
+      margin: 4px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 8px 14px;
+      font-size: 16px;
+      margin: 0 6px;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0px); }
+      25% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0px); }
+    }
+
+    .shake {
+      animation: shake 0.3s ease-in-out;
     }
   </style>
 </head>
 <body>
-  <div class="lang-switch">
-    <a href="{{ url_for('set_lang', lang='en') }}">🇺🇸 English</a> |
-    <a href="{{ url_for('set_lang', lang='ko') }}">🇰🇷 한국어</a>
+
+  <h1>🔐 Love Lock on the Fence</h1>
+
+  <div class="controls">
+    <input type="text" id="name1" placeholder="Name 1">
+    <input type="text" id="name2" placeholder="Name 2">
+    <textarea id="message" placeholder="Message (optional)" rows="2" style="font-size: 14px; margin: 4px; padding: 6px; width: 200px;"></textarea>
+    <input type="password" id="password" placeholder="Password (to unlock)" style="font-size: 14px; margin: 4px; padding: 6px;">
+    <button onclick="zoomIn()">Zoom In</button>
+    <button onclick="zoomOut()">Zoom Out</button>
+    <button onclick="addLock()">Add Lock</button>
   </div>
 
-  <div class="container">
-    <h1 id="title">❤️</h1>
+  <svg id="lockArea" width="600" height="400" viewBox="0 0 600 400">
+    <g id="fence-lock-group" transform="scale(1)">
+      <!-- Fence -->
+      <rect x="50" y="100" width="500" height="250" fill="#ccc" stroke="#999" stroke-width="10" rx="20"/>
 
-    <form action="{{ url_for('create_lock') }}" method="post">
-      <input type="text" name="name1" id="name1" placeholder="Name 1" required />
-      <input type="text" name="name2" id="name2" placeholder="Name 2" required />
-      <br />
-      <textarea name="message" id="message" placeholder="Optional message" rows="3"></textarea>
-      <br />
-      <button type="submit" id="lock-btn">🔐 Lock it!</button>
-    </form>
-
-    <!-- 🔐 자물쇠 SVG 미리보기 -->
-    <div class="lock-svg-preview">
-      <object type="image/svg+xml" id="svgLock" width="160" height="200"></object>
-    </div>
-  </div>
+      <!-- Lock Container -->
+      <g id="lock-container"></g>
+    </g>
+  </svg>
 
   <script>
-    // 다국어 텍스트 적용
-    fetch(`/locales/{{ lang }}.json`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('title').innerText = data['title'];
-        document.getElementById('name1').placeholder = data['name1'];
-        document.getElementById('name2').placeholder = data['name2'];
-        document.getElementById('message').placeholder = data['message'];
-        document.getElementById('lock-btn').innerText = data['submit'];
-      });
+    let zoomLevel = 1;
+    const group = document.getElementById("fence-lock-group");
+    const lockContainer = document.getElementById("lock-container");
 
-    // 랜덤 자물쇠 색상 선택
-    const colors = ['red', 'yellow', 'blue'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    const svgLock = document.getElementById('svgLock');
-    svgLock.data = `/static/img/lock_${randomColor}.svg`;
-
-    // 이름 입력 시 자물쇠 SVG 안에 텍스트 반영
-    document.getElementById('name1').addEventListener('input', updatePreview);
-    document.getElementById('name2').addEventListener('input', updatePreview);
-
-    function updatePreview() {
-      const name1 = document.getElementById('name1').value.trim();
-      const name2 = document.getElementById('name2').value.trim();
-      const previewText = name1 && name2 ? `${name1} ❤️ ${name2}` : '❤️';
-
-      if (svgLock && svgLock.contentDocument) {
-        const textElement = svgLock.contentDocument.getElementById('lockText');
-        if (textElement) {
-          textElement.textContent = previewText;
-        }
-      }
+    function zoomIn() {
+      zoomLevel += 0.1;
+      group.setAttribute("transform", `scale(${zoomLevel})`);
     }
 
-    // SVG 로드 완료 후 첫 미리보기 반영
-    svgLock.addEventListener("load", updatePreview);
+    function zoomOut() {
+      zoomLevel = Math.max(0.5, zoomLevel - 0.1);
+      group.setAttribute("transform", `scale(${zoomLevel})`);
+    }
+
+    let lockCount = 0;
+    const lockSpacing = 70;
+
+    function addLock() {
+      const name1 = document.getElementById("name1").value.trim();
+      const name2 = document.getElementById("name2").value.trim();
+      const message = document.getElementById("message").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const label = name1 && name2 ? `${name1} ❤️ ${name2}` : "❤️";
+
+      const x = Math.floor(Math.random() * (500 - 60)) + 50;
+      const y = Math.floor(Math.random() * (250 - 80)) + 100;
+      const lockId = `lock-${lockCount}`;
+
+      const lock = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      lock.setAttribute("id", lockId);
+      lock.setAttribute("transform", `translate(${x}, ${y})`);
+      if (password) {
+        lock.setAttribute("data-password", password);
+        lock.style.cursor = "pointer";
+        lock.addEventListener("click", () => {
+          lock.classList.add("shake");
+          setTimeout(() => {
+            lock.classList.remove("shake");
+            const input = prompt("Enter password to unlock:");
+            if (input === lock.getAttribute("data-password")) {
+              lock.remove();
+            } else {
+              alert("Incorrect password.");
+            }
+          }, 300);
+        });
+      }
+
+      lock.innerHTML = `
+        <path d="M10,0 Q10,-40 30,-40 Q50,-40 50,0" stroke="#555" stroke-width="6" fill="none"/>
+        <rect width="60" height="80" fill="#FFD700" rx="10"/>
+        <text x="30" y="45" text-anchor="middle" font-size="11" fill="black">${label}</text>
+        ${message ? `<text x="30" y="60" text-anchor="middle" font-size="10" fill="#333">${message}</text>` : ''}
+      `;
+
+      lockContainer.appendChild(lock);
+      lockCount++;
+    }
   </script>
+
 </body>
 </html>
